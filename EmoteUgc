@@ -1,0 +1,873 @@
+if not game:IsLoaded() then game["Loaded"]:Wait() end
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local players = game:GetService("Players")
+local localplayer = players["LocalPlayer"]
+local marketplaceservice = game:GetService("MarketplaceService")
+local httpservice = game:GetService("HttpService")
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local function clik()
+	local s = Instance.new("Sound") 
+	s["SoundId"] = "rbxassetid://"
+	s["Parent"] = game["Workspace"]
+	s["Volume"] = 1.2
+	s["TimePosition"] = 0.1
+	s:Play()
+end
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui["Name"] = "AnimationPlayer"
+gui["Parent"] = gethui and gethui() or game:GetService("CoreGui")
+gui["ResetOnSpawn"] = false
+
+local function repos(ui, w, h)
+	local sw, sh = workspace["CurrentCamera"]["ViewportSize"]["X"], workspace["CurrentCamera"]["ViewportSize"]["Y"]
+	local cx, cy = (sw - w) / 2, (sh - h) / 2 - 56
+	ui["Position"] = UDim2.new(0, cx, 0, cy)
+end
+
+local frame = Instance.new("Frame")
+frame["Size"] = UDim2.new(0, 399, 0, 300)
+frame["Position"] = UDim2.new(0.35, 0, 0.3, 0)
+repos(frame, 399, 300)
+frame["BackgroundColor3"] = Color3.fromRGB(30, 30, 30)
+frame["BorderSizePixel"] = 0
+frame["Parent"] = gui
+
+task.spawn(function()
+	local dragtoggle
+	local dragspeed = 0.25
+	local dragstart
+	local startpos
+
+	local function updatebuttoninput(input)
+		local delta = input["Position"] - dragstart
+		local position = UDim2.new(startpos["X"]["Scale"], startpos["X"]["Offset"] + delta["X"],
+			startpos["Y"]["Scale"], startpos["Y"]["Offset"] + delta["Y"])
+		game:GetService("TweenService"):Create(frame, TweenInfo.new(dragspeed), {["Position"] = position}):Play()
+	end
+
+	frame["InputBegan"]:Connect(function(input)
+		if (input["UserInputType"] == Enum.UserInputType.MouseButton1 or input["UserInputType"] == Enum.UserInputType.Touch) then 
+			dragtoggle = true
+			dragstart = input["Position"]
+			startpos = frame["Position"]
+			input["Changed"]:Connect(function()
+				if input["UserInputState"] == Enum.UserInputState.End then
+					dragtoggle = false
+				end
+			end)
+		end
+	end)
+
+	game:GetService("UserInputService")["InputChanged"]:Connect(function(input)
+		if input["UserInputType"] == Enum.UserInputType.MouseMovement or input["UserInputType"] == Enum.UserInputType.Touch then
+			if dragtoggle then
+				updatebuttoninput(input)
+			end
+		end
+	end)
+end)
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local topbar = Instance.new("Frame")
+topbar["Size"] = UDim2.new(0, 399, 0, 30)
+topbar["BackgroundColor3"] = Color3.fromRGB(50, 50, 50)
+topbar["BorderSizePixel"] = 0
+topbar["Parent"] = frame
+
+local titlelabel = Instance.new("TextLabel")
+titlelabel["Size"] = UDim2.new(1, -140, 1, 0)
+titlelabel["Position"] = UDim2.new(0, 0, 0, 0)
+titlelabel["BackgroundTransparency"] = 1
+titlelabel["Text"] = " FE R15 Animation Player"
+titlelabel["Font"] = Enum.Font.RobotoMono
+titlelabel["TextXAlignment"] = Enum.TextXAlignment.Left
+titlelabel["TextColor3"] = Color3.new(1, 1, 1)
+titlelabel["TextSize"] = 18
+titlelabel["Parent"] = topbar
+
+local searchbar = Instance.new("Frame")
+searchbar["Size"] = UDim2.new(0, 399, 0, 30)
+searchbar["Position"] = UDim2.new(0, 0, 0, 30)
+searchbar["BackgroundColor3"] = Color3.fromRGB(40, 40, 40)
+searchbar["BorderSizePixel"] = 0
+searchbar["Parent"] = frame
+
+local searchbox = Instance.new("TextBox")
+searchbox["Size"] = UDim2.new(1, -10, 0, 20)
+searchbox["Position"] = UDim2.new(0, 5, 0, 5)
+searchbox["BackgroundColor3"] = Color3.fromRGB(30, 30, 30)
+searchbox["TextColor3"] = Color3.new(1, 1, 1)
+searchbox["PlaceholderText"] = "Search for Animations..."
+searchbox["PlaceholderColor3"] = Color3.fromRGB(150, 150, 150)
+searchbox["Text"] = ""
+searchbox["TextSize"] = 14
+searchbox["Font"] = Enum.Font.RobotoMono
+searchbox["BorderSizePixel"] = 0
+searchbox["Parent"] = searchbar
+
+local function createbutton(name, position, size, color, text)
+	local button = Instance.new("TextButton")
+	button["Name"] = name
+	button["Size"] = size
+	button["Position"] = position
+	button["BackgroundColor3"] = color
+	button["Text"] = text
+	button["TextColor3"] = Color3.new(1, 1, 1)
+	button["TextSize"] = 16
+	button["Font"] = Enum.Font.RobotoMono
+	button["BorderSizePixel"] = 0
+	button["BackgroundTransparency"] = 0.7
+	button["Parent"] = topbar
+	return button
+end
+
+local stopallbutton = createbutton("StopAllButton", UDim2.new(1, -147, 0, 5), UDim2.new(0, 90, 0, 20), Color3.fromRGB(200, 50, 50), "Stop All")
+local minimizebutton = createbutton("MinimizeButton", UDim2.new(1, -51, 0, 5), UDim2.new(0, 20, 0, 20), Color3.fromRGB(50, 50, 200), "–")
+local xbutton = createbutton("CloseButton", UDim2.new(1, -25, 0, 5), UDim2.new(0, 20, 0, 20), Color3.fromRGB(200, 50, 50), "X")
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local scrollframe = Instance.new("ScrollingFrame")
+scrollframe["Size"] = UDim2.new(1, 0, 0, 230)
+scrollframe["Position"] = UDim2.new(0, 0, 0, 65)
+scrollframe["CanvasSize"] = UDim2.new(0, 0, 0, 0)
+scrollframe["ScrollBarThickness"] = 0
+scrollframe["BorderSizePixel"] = 0
+scrollframe["BackgroundTransparency"] = 1
+scrollframe["BackgroundColor3"] = Color3.fromRGB(20, 20, 20)
+scrollframe["Parent"] = frame
+
+local buttoncontainer = Instance.new("Frame")
+buttoncontainer["Size"] = UDim2.new(1, 0, 1, 0)
+buttoncontainer["Position"] = UDim2.new(0, 5, 0, 0)
+buttoncontainer["BackgroundTransparency"] = 1
+buttoncontainer["Parent"] = scrollframe
+
+local buttonlayout = Instance.new("UIGridLayout")
+buttonlayout["CellPadding"] = UDim2.new(0, 5, 0, 5)
+buttonlayout["CellSize"] = UDim2.new(0, 126.2, 0, 60)
+buttonlayout["SortOrder"] = Enum.SortOrder.LayoutOrder
+buttonlayout["Parent"] = buttoncontainer
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+local originalButtons = {}
+
+local animations = {
+    {name = "California\nGirls", id = 124982597491660, speed = 1.2, timepos = 0},
+    {name = "Helicopter", id = 95301257497525, speed = 1, timepos = 0},
+    {name = "Helicopter 2", id = 122951149300674, speed = 1, timepos = 0},
+    {name = "Helicopter 3", id = 91257498644328, speed = 1, timepos = 0},
+    {name = "Da Hood Dance", id = 108171959207138, speed = 1, timepos = 0},
+    {name = "Da Hood Stomp", id = 115048845533448, speed = 1.4, timepos = 0},
+    {name = "Flopping Fish", id = 79075971527754, speed = 1, timepos = 0},
+    {name = "Gangnam Style", id = 78801539668900, speed = 1, timepos = 0.8, duration= 10000},
+    {name = "Caramelldansen v1", id = 88315693621494, speed = 1, timepos = 0},
+    {name = "Caramelldansen v2", id = 80316917876772, speed = 1, timepos = 0},
+    {name = "Caramelldansen v3", id = 117525048548930, speed = 1, timepos = 0},
+    {name = "subject v3", id = 117374801851126, speed = 1.1, timepos = 0},
+    {name = "Heart Left", id = 110936682778213, speed = 0, timepos = 0},
+    {name = "Heart Right", id = 84671941093489, speed = 0, timepos = 0},
+    {name = "67", id = 115439144505157, speed = 1, timepos = 0},
+    {name = "MM2 Zen", id = 86872878957632, speed = 1, timepos = 0},
+    {name = "Default Dance", id = 80227566492978, speed = 1, timepos = 0},
+    {name = "Sit", id = 97185364700038, speed = 1, timepos = 0},
+    {name = "Kazotsky Kick", id = 97148848007002, speed = 1, timepos = 0},
+    {name = "Fight Stance", id = 116763940575803, speed = 1, timepos = 0},
+    {name = "Oh Who Is You", id = 81389876138766, speed = 1, timepos = 0},
+    {name = "Cute Sit", id = 130995344283026, speed = 1, timepos = 0},
+    {name = "The Worm", id = 110309913045541, speed = 1, timepos = 0},
+    {name = "Snake", id = 98476854035224, speed = 1, timepos = 0},
+    {name = "Peter Griffin Death", id = 129787664584610, speed = 1, timepos = 0},
+    {name = "Walter Scene", id = 113475147402830, speed = 1, timepos = 0},
+    {name = "Cute Stomach Lay", id = 80754582835479, speed = 1, timepos = 0},
+    {name = "Shadow Dio Pose", id = 92266904563270, speed = 1, timepos = 0},
+    {name = "Jotaro Pose", id = 122120443600865, speed = 1, timepos = 0},
+    {name = "Biblically Accurate", id = 109873544976020, speed = 1, timepos = 0},
+    {name = "Headless", id = 78837807518622, speed = 1, timepos = 0},
+    {name = "Gangnam style", id = 115518346414107, speed = 1, timepos = 0},
+    {name = "rambunction", id = 136095999219650, speed = 1.1, timepos = 0},
+    {name = "JubiSLIDE", id = 85247727536511, speed = 1, timepos = 0},
+    {name = "SignatureShufle", id = 112931882473990, speed = 1, timepos = 0},
+    {name = "Backflip", id = 15693621070, speed = 1, timepos = 0},
+    {name = "prince of egypt", id = 125080663978632, speed = 1, timepos = 0},
+    {name = "take the l", id = 100901609754204, speed = 1, timepos = 0},
+    {name = "push up 5x30", id = 93858946130346, speed = 1.3, timepos = 0},
+    {name = "sit up 5x30", id = 112474404942850, speed = 1, timepos = 0},
+    {name = "push up 5x30 v2", id = 113889893443813, speed = 1.3, timepos = 0},
+    {name = "hide and seek", id = 122954953446602, speed = 1, timepos = 0},
+    {name = "electro swing", id = 138785676658772, speed = 1, timepos = 0},
+    {name = "ride the pony", id = 123400636401979, speed = 1, timepos = 0},
+    {name = "phut on", id = 88038962894440, speed = 1.2, timepos = 0},
+    {name = "rat dance", id = 101765102432220, speed = 1, timepos = 0},
+    {name = "dame tu cosita", id = 90683763183723, speed = 1, timepos = 0},
+    {name = "peanut butter", id = 108848553639889, speed = 1, timepos = 0},
+    {name = "onion", id = 134735047372485, speed = 1, timepos = 0},
+    {name = "HardStyle", id = 93792556735639, speed = 1, timepos = 0},
+    {name = "bhangra boogie", id = 78416657618448, speed = 1, timepos = 0},
+    {name = "sex dance 1", id = 92618727772186, speed = 1, timepos = 0},
+    {name = "griddy", id = 71864055176836, speed = 1.1, timepos = 0},
+    {name = "/e fly", id = 91133306449431, speed = 1, timepos = 0},
+    {name = "1peter parker dance", id = 107943246605367, speed = 1, timepos = 0},
+    {name = "cat cleaning", id = 119188765999891, speed = 1, timepos = 0},
+    {name = "headbanger", id = 75117155576035, speed = 1, timepos = 0},
+    {name = "macarena", id = 89558401923098, speed = 1, timepos = 0},
+    {name = "macarenav2", id = 107242269951277, speed = 1, timepos = 0},
+    {name = "blue shirt guy", id = 91294374426630, speed = 1, timepos = 0},
+    {name = "gmod dance", id = 124896171012585, speed = 1, timepos = 0},
+    {name = "neutron dance", id = 126330065248146, speed = 1, timepos = 0},
+    {name = "tank", id = 94915612757079, speed = 1, timepos = 0},
+    {name = "sponge dance", id = 72248021897603, speed = 1, timepos = 0},
+    {name = "orange justice", id = 95127716920692, speed = 1.1, timepos = 0},
+    {name = "mikuBeam", id = 127187333329533, speed = 1, timepos = 0},
+    {name = "corrupted entity", id = 99829515790878, speed = 1, timepos = 0},
+    {name = "dab", id = 88596501983638, speed = 1, timepos = 0},
+    {name = "picke rick dance", id = 71911684622445, speed = 1, timepos = 0},
+    {name = "snoop dance", id = 107759404982778, speed = 1, timepos = 0},
+    {name = "bring it around", id = 93435282304038, speed = 1, timepos = 0},
+    {name = "Xavier dance", id = 90802740360125, speed = 1, timepos = 0},
+    {name = "car transformation", id = 108747312576405, speed = 1, timepos = 0},
+    {name = "dance n'prance", id = 92246757633675, speed = 1, timepos = 0},
+    {name = "shimmery", id = 87031427869572, speed = 1, timepos = 0},
+    {name = "r15 death accurate", id = 88130117312312, speed = 1, timepos = 0},
+    {name = "jumpstyle", id = 86272822145078, speed = 1, timepos = 0},
+    {name = "/e dance1", id = 89676212115777, speed = 1, timepos = 0},
+    {name = "/e dance2", id = 116571017721759, speed = 1, timepos = 0},
+    {name = "/e dance3", id = 78240649545370, speed = 1, timepos = 0},
+    {name = "Doggy Things", id = 130059214239749, speed = 1, timepos = 0},
+    {name = "GoMufasa", id = 134919149950950, speed = 1.1, timepos = 0},
+    {name = "180° flip", id = 114400428765989, speed = 1, timepos = 0},
+    {name = "Pooping", id = 120272836618294, speed = 1, timepos = 0},
+    {name = "BestMates", id = 82740749298281, speed = 1, timepos = 0},
+    {name = "spongebob shuffle", id = 136292253730425, speed = 1, timepos = 0},
+    {name = "OmniMan", id = 104151027065011, speed = 1, timepos = 0},
+    {name = "Player456Falling", id = 124081801279073, speed = 1, timepos = 0},
+    {name = "InDaParty", id = 106140267738400, speed = 1.1, timepos = 0},
+    {name = "noclip wall", id = 87058607990254, speed = 0.6, timepos = 0},
+    {name = "IShowspee dance", id = 101100218548643, speed = 1, timepos = 0},
+    {name = "OH YEAH!", id = 83790974554159, speed = 1, timepos = 0},
+    {name = "diarhea", id = 135209943254692, speed = 1, timepos = 0},
+    {name = "dance des canards", id = 126960077574956, speed = 1, timepos = 0},
+    {name = "around the world", id = 122839662313339, speed = 1, timepos = 0},
+    {name = "goat simulator dance", id = 113052435813981, speed = 1, timepos = 0},
+    {name = "brookhaven ahh dance", id = 140315159513795, speed = 1, timepos = 0},
+    {name = "party hips", id = 96398792720808, speed = 1, timepos = 0},
+    {name = "Popipo intro", id = 84352128203419, speed = 1, timepos = 0},
+    {name = "Popipo dance", id = 119343956751843, speed = 1, timepos = 0},
+    {name = "scenario", id = 88577449307234, speed = 1, timepos = 0},
+    {name = "eagle", id = 94733755146045, speed = 1.5, timepos = 0},
+    {name = "goofy roll", id = 133612047483255, speed = 1, timepos = 0},
+    {name = "BoogieDown", id = 99662142344622, speed = 1, timepos = 0},
+    {name = "Distraction dance", id = 118817596777382, speed = 1.4, timepos = 0},
+    {name = "FoldIntoTorso", id = 125125316404919, speed = 1, timepos = 0},
+    {name = "TorsoFace", id = 135277125926306, speed = 1, timepos = 0},
+    {name = "NaziLogo", id = 115474307862803, speed = 1, timepos = 0},
+    {name = "ClubPengin", id = 91080137749386, speed = 1, timepos = 0},
+    {name = "CarShearer", id = 90340558648855, speed = 1, timepos = 0},
+    {name = "MinecraftCommunication", id = 111783757357767, speed = 1, timepos = 0},
+    {name = "billy bounce", id = 130863060161499, speed = 0.89, timepos = 0},
+    {name = "rock that body", id = 136186079016296, speed = 1, timepos = 0},
+    {name = "electroShuffle", id = 103948800984170, speed = 1, timepos = 0},
+    {name = "JabbaSwitchway", id = 74651461910250, speed = 1, timepos = 0},
+    {name = "No U", id = 119150095803244, speed = 1, timepos = 0},
+    {name = "CrabRave", id = 77527874177418, speed = 1, timepos = 0},
+    {name = "Doodle", id = 95627698551397, speed = 1, timepos = 0},
+    {name = "LastForever", id = 70724736007649, speed = 1, timepos = 0},
+    {name = "Mannrobics", id = 76325688733257, speed = 1, timepos = 0},
+    {name = "Hype", id = 91362133998916, speed = 1.4, timepos = 0},
+    {name = "Smoothmoves", id = 116169420916677, speed = 1, timepos = 0},
+    {name = "BhopCsgo", id = 127915306032185, speed = 1, timepos = 0},
+    {name = "IwannaRunAway", id = 76459424967458, speed = 4, timepos = 0, duration = 1.18},
+    {name = "IwannaRunAwaySlowed", id = 76459424967458, speed = 0.8, timepos = 0, duration = 6},
+    {name = "Sparrow run", id = 74465743370973, speed = 1, timepos = 0},
+    {name = "RickRoll", id = 140227358898207, speed = 1, timepos = 0},
+    {name = "Pray", id = 81284540778909, speed = 1, timepos = 0},
+    {name = "Raider", id = 107827590495905, speed = 1, timepos = 0},
+    {name = "Drop it like it hot", id = 110204898807330, speed = 1, timepos = 0},
+    {name = "thatmydog", id = 96673018720208, speed = 1, timepos = 0},
+    {name = "sidestep", id = 105890901562755, speed = 1, timepos = 0},
+    {name = "popular", id = 93062298566806, speed = 1, timepos = 0},
+    {name = "belly dancing", id = 136494657202841, speed = 1, timepos = 0},
+    {name = "BARABARA BEREBERE", id = 115666021063476, speed = 1, timepos = 0},
+    {name = "thanosDance", id = 80655486037506, speed = 1, timepos = 0},
+    {name = "OHYEAH!", id = 83790974554159, speed = 1, timepos = 0},
+    {name = "LagSwitchNoclip", id = 96688044197768, speed = 1, timepos = 0},
+    {name = "WeirdButtPose", id = 128878234519023, speed = 1, timepos = 0},
+    {name = "GmodCrowbar", id = 101197238583271, speed = 1, timepos = 0},
+    {name = "NeckSuicide", id = 113216115251432, speed = 1, timepos = 0},
+    {name = "IamGoingCrazy", id = 91042844610221, speed = 1, timepos = 0},
+    {name = "StreetDance", id = 80593989451618, speed = 1, timepos = 0},
+    {name = "Brooklyn pop", id = 120224192302556, speed = 1, timepos = 0},
+    {name = "Wiggly meneuver", id = 93587939762469, speed = 1, timepos = 0},
+    {name = "Pooping", id = 132399051509976, speed = 1, timepos = 0},
+    {name = "Poop your head", id = 123853918595829, speed = 1, timepos = 0},
+    {name = "NoTouchin'", id = 132822053476420, speed = 1, timepos = 0},
+    {name = "Breakdance", id = 139316100443270, speed = 1, timepos = 0},
+    {name = "T-Bag", id = 111456138924580, speed = 1, timepos = 0},
+    {name = "ToiletTime", id = 78283794491596, speed = 1, timepos = 0},
+    {name = "Hide/FlyGlitch", id = 139664439112695, speed = 1, timepos = 0},
+    {name = "Bang Bang Bang", id = 80129103809816, speed = 1, timepos = 0},
+    {name = "HandStand", id = 89828010066420, speed = 1, timepos = 0},
+    {name = "CPR", id = 101096721142418, speed = 1, timepos = 0},
+    {name = "Fresh", id = 101904910487412, speed = 1.4, timepos = 0},
+    {name = "/e noclip", id = 77709746654631, speed = 1, timepos = 0},
+    {name = "Michael jackson", id = 89641668304027, speed = 1, timepos = 0},
+    {name = "Michael jacksonLean", id = 125435265875646, speed = 1, timepos = 0},
+    {name = "ShakeIt", id = 115318724645140, speed = 1, timepos = 0},
+    {name = "Crabby", id = 117377957664312, speed = 1, timepos = 0},
+    {name = "GeekTime", id = 92378221027533, speed = 1, timepos = 0},
+    {name = "Traditionnal russian dance", id = 92497909894776, speed = 1, timepos = 0},
+    {name = "Cow dance", id = 86230739306729, speed = 1, timepos = 0},
+    {name = "Boneless", id = 126299537933398, speed = 1, timepos = 0},
+    {name = "Swimming in the air", id = 129675136666614, speed = 1, timepos = 0},
+    {name = "AronaDance", id = 114335612763996, speed = 1, timepos = 0},
+    {name = "Basketball", id = 77197915251046, speed = 1, timepos = 0},
+    {name = "Brazilian luffy", id = 136390262709340, speed = 1, timepos = 0},
+    {name = "DruskiDance", id = 90042170774234, speed = 1, timepos = 0},
+    {name = "7ringsDance", id = 116835198609765, speed = 1, timepos = 0}, 
+    {name = "SmoothMoves", id = 116169420916677, speed = 1, timepos = 0},
+    {name = "Athletic squats", id = 79717019454231, speed = 1, timepos = 0},
+    {name = "NormalSquats", id = 112281858314881, speed = 1, timepos = 0},
+    {name = "NoGuideDance", id = 109694528912103, speed = 1, timepos = 0},
+    {name = "TuffChinesseDance", id = 121445684851981, speed = 1, timepos = 0},
+    {name = "InHaMood", id = 135676899725674, speed = 1, timepos = 0},
+    {name = "HeadbangerWeird", id = 118998596997246, speed = 1, timepos = 0},
+    {name = "ZeroTwoWeird", id = 116250492359798, speed = 1, timepos = 10},
+    {name = "RainOnMe", id = 93300543572763, speed = 1, timepos = 0},
+    {name = "MindBlowing", id = 122242760588872, speed = 1, timepos = 0},
+    {name = "/e fling", id = 80072554174302, speed = 1, timepos = 0},
+    {name = "Engineer dance", id = 133369496257931, speed = 1, timepos = 0},
+    {name = "Hide In Walls(Left)", id = 120896961472578, speed = 1, timepos = 0},
+    {name = "Hide In Walls (Right)", id = 71452356688498, speed = 1, timepos = 0},
+    {name = "Goopie", id = 115637992662897, speed = 1, timepos = 0},
+    {name = "AlorsOnDance", id = 116577543258974, speed = 1, timepos = 0},
+    {name = "FastHeadBang", id = 87650359912635, speed = 1, timepos = 0},
+    {name = "Dodges (Frames)", id = 110875224835902, speed = 1, timepos = 0},
+    {name = "ILikeToMoveIt", id = 106770025376393, speed = 1, timepos = 0},
+    {name = "PartyRockAnthem", id = 134459607456762, speed = 1, timepos = 0},
+    {name = "Feel the Flow", id = 77307767448163, speed = 1, timepos = 0},
+    {name = "Dougie", id = 126035888065434, speed = 1, timepos = 0},
+    {name = "PartyGoku", id = 80443100846814, speed = 1, timepos = 0},
+    {name = "Nizmoo", id = 75096517375608, speed = 1, timepos = 0},
+    {name = "FlingEmote", id = 119089986129204, speed = 1, timepos = 0},
+    {name = "LetsGroove", id = 95636653691213, speed = 1, timepos = 0},
+    {name = "OnionBestVer", id = 126282893295088, speed = 1, timepos = 0},
+    {name = "Clapping", id = 88934749396068, speed = 1, timepos = 0},
+    {name = "SniffingAss", id = 82686542709410, speed = 0.4, timepos = 0},
+    {name = "TheRobot", id = 114448748404631, speed = 1, timepos = 0},
+    {name = "AustralianSquareDance", id = 100357480359966, speed = 1, timepos = 0},
+    {name = "BrunoMarsTouch", id = 85009479167779, speed = 1, timepos = 0},
+    {name = "Fornite Knocked down", id = 137367641938990, speed = 1, timepos = 0},
+    {name = "TheLook", id = 132921312059404, speed = 1, timepos = 0},
+    {name = "TBD", id = 133050549047747, speed = 1, timepos = 0},
+    {name = "WeirdGorillaButt", id = 73055093099081, speed = 1, timepos = 0},
+    {name = "Springy", id = 137205932883902, speed = 1, timepos = 0},
+    {name = "KorbloxAndHeadless", id = 97069996546256, speed = 0, timepos = 0},
+    {name = "Diareha v2", id = 80745177719793, speed = 1, timepos = 0},
+    {name = "See tinh", id = 119003686253577, speed = 1, timepos = 0, duration = 7.2},
+    {name = "Crazy Back Lean", id = 98601053422164, speed = 0, timepos = 7},
+    {name = "Kazootsky kick (Real)", id = 82405331497617, speed = 1, timepos = 0},
+    {name = "BrazilianLuffy(Real)", id = 82469812342026, speed = 1, timepos = 0},
+    {name = "MadnessDanceV1", id = 133428068870023, speed = 1, timepos = 0},
+    {name = "MadnessDanceV2", id = 118527055384118, speed = 1, timepos = 0},
+    {name = "GarfieldDance", id = 97910360413953, speed = 1, timepos = 0},
+    {name = "SaySo", id = 77196912859360, speed = 1, timepos = 0},
+    {name = "DiscoDanceSpin", id = 111995097701559, speed = 1, timepos = 0},
+    {name = "Praying", id = 113873670642964, speed = 1, timepos = 0},
+    {name = "Rollie", id = 125146305865250, speed = 1, timepos = 0},
+    {name = "ParrotDance", id = 85358094346886, speed = 1, timepos = 0},
+    {name = "HipHopDance", id = 100247369002535, speed = 1, timepos = 0},
+    {name = "MassivePoopEating", id = 123974911964625, speed = 1, timepos = 0},
+    {name = "OneTwoThreeDance", id = 136316171951913, speed = 1, timepos = 0},
+    {name = "/join /fly Hide", id = 98968472494059, speed = 1, timepos = 0},
+    {name = "ForniteSkyDive", id = 94919830501283, speed = 1, timepos = 0},
+    {name = "Bizzotchio", id = 138469259322888, speed = 1, timepos = 0},
+    {name = "Dr eggman dance", id = 130200046116066, speed = 1, timepos = 0},
+    {name = "Slide Foward (NoclipMethod)", id = 126650255905831, speed = 1, timepos = 0},
+    {name = "Cat dance meme", id = 87392183293510, speed = 1, timepos = 0},
+    {name = "Miku live", id = 122490897934226, speed = 1, timepos = 0},
+    {name = "Spinning", id = 121381592811789, speed = 1, timepos = 0},
+    {name = "hiden body invisible", id = 123297186701468, speed = 1, timepos = 0},
+    {name = "Become Invisible Emote", id = 101265429230273, speed = 1, timepos = 0},
+    {name = "GangstaWalk", id = 114292708300365, speed = 1, timepos = 0},
+    {name = "Wind Up", id = 76877722651620, speed = 1, timepos = 0},
+    {name = "TheQuickStyle", id = 74804430904049, speed = 1.1, timepos = 0},
+    {name = "FireWork", id = 100250289150692, speed = 1, timepos = 0},
+    {name = "Punches", id = 113934433970122, speed = 1, timepos = 0},
+    {name = "ItSpookyMonth", id = 74986450260207, speed = 1, timepos = 0},
+    {name = "RicardoMillos", id = 84415638612809, speed = 1, timepos = 0},
+    {name = "Jubilation", id = 128194392357720, speed = 1, timepos = 0},
+    {name = "Levan Polka", id = 99603420309104, speed = 1, timepos = 0},
+    {name = "PumperNickel", id = 80982124218870, speed = 1, timepos = 0},
+    {name = "GiveMeEverything", id = 111658781614710, speed = 1, timepos = 0},
+    {name = "TokyoCalling", id = 74895710392730, speed = 1, timepos = 0},
+    {name = "TwoBBNO", id = 119219096371576, speed = 1.2, timepos = 0},
+    {name = "BBNO-1800", id = 128805578942976, speed = 1.2, timepos = 0},
+    {name = "MONTAGEM XONADA", id = 131003875561144, speed = 1, timepos = 0},
+    {name = "TETO DANCE OCHAME KINOU", id = 131751661872100, speed = 1, timepos = 0},
+    {name = "Hotel Transilvania dance meme", id = 105944723518605, speed = 1, timepos = 0},
+    {name = "My world", id = 118710904417046, speed = 1, timepos = 0},
+    {name = "Rick dance", id = 116443498776986, speed = 1, timepos = 0},
+    {name = "Zamnnn", id = 97410190328821, speed = 1, timepos = 0},
+    {name = "NoGuidance", id = 130423169752109, speed = 1, timepos = 0},
+    {name = "GetSturdy", id = 110983437994089, speed = 1, timepos = 0},
+    {name = "Rasputin", id = 105132703462571, speed = 1, timepos = 0},
+    {name = "Reanimated", id = 130670286022050, speed = 1, timepos = 0},
+    {name = "Saints Rows", id = 107106597506057, speed = 1, timepos = 0},
+    {name = "Peligrosa", id = 86920109754751, speed = 1, timepos = 0},
+    {name = "WiggleDance", id = 80506049512694, speed = 1, timepos = 0},
+    {name = "SmugDance", id = 91653923598331, speed = 1, timepos = 0},
+    {name = "Tidy", id = 135902829686858, speed = 1, timepos = 0},
+    {name = "MetroMan", id = 129373064455405, speed = 1, timepos = 0},
+    {name = "SharpMitaShake", id = 79019599376472, speed = 1, timepos = 0},
+    {name = "SharpDeviousHandrub", id = 105922316873728, speed = 1, timepos = 0},
+    {name = "Dancery", id = 111872270451598, speed = 1, timepos = 0},
+    {name = "BoldStance", id = 86291051127660, speed = 1, timepos = 0},
+    {name = "Coffin", id = 114706569807940, speed = 1, timepos = 0},
+    {name = "Dare(Gorillaz)", id = 130655189078331, speed = 1, timepos = 0},
+    {name = "BlastMove", id = 134883412948991, speed = 1, timepos = 0},
+    {name = "HappySway", id = 81514193646033, speed = 1, timepos = 0},
+    {name = "DreamFeet", id = 85323920530913, speed = 1, timepos = 0},
+    {name = "Fandagle", id = 128987960209100, speed = 1, timepos = 0},
+    {name = "DiamondBts", id = 136239695240096, speed = 1, timepos = 0},
+    {name = "DynamicShuffle", id = 92830969878173, speed = 1, timepos = 0},
+    {name = "DaftPunkAroundTheWorld", id = 133236848176175, speed = 1, timepos = 0},
+    {name = "DrLiverseyWalk", id = 90113018689130, speed = 1, timepos = 0},
+    {name = "Wake me up twin", id = 84037189149258, speed = 1, timepos = 0},
+    {name = "MaximumBounce", id = 79312463267034, speed = 1, timepos = 0},
+    {name = "MonsterMash", id = 125035250578627, speed = 1, timepos = 0},
+    {name = "Twist", id = 73819201281074, speed = 1, timepos = 0},
+    {name = "NinjaStyle", id = 74767374205011, speed = 1, timepos = 0},
+    {name = "61", id = 95277446484578, speed = 1, timepos = 0},
+    {name = "/eDance", id = 507772104, speed = 1, timepos = 0},
+    {name = "BackShotsHeadBanging", id = 5915711491, speed = 1, timepos = 0},
+    {name = "ApplePen", id = 131820233482298, speed = 1, timepos = 0},
+    {name = "DanceDesCanardsV2", id = 10714020158, speed = 1, timepos = 0},
+    {name = "DorkyDanceFace", id = 10714069471, speed = 1, timepos = 0},
+    {name = "Sleep Bang", id = 10714360343, speed = 1, timepos = 0},
+    {name = "Rasputin", id = 114872820353992, speed = 1, timepos = 0},
+    {name = "GetLucky", id = 108026656438058, speed = 1, timepos = 0},
+    {name = "Myers Hop dance", id = 95654072779255, speed = 1, timepos = 0},
+    {name = "Alien Aduction", id = 89870874920451, speed = 1, timepos = 0},
+    {name = "Walkin pretty", id = 109129954191611, speed = 1, timepos = 0},
+    {name = "Slitherin", id = 134398390133697, speed = 1, timepos = 0},
+    {name = "SlimShady", id = 97785698148797, speed = 1, timepos = 0},
+    {name = "FlapperEmote", id = 87969562791567, speed = 1, timepos = 0},
+    {name = "BecomeMassive", id = 93534084045396, speed = 1, timepos = 0},
+    {name = "SkeletonDance", id = 93430358110812, speed = 1, timepos = 0},
+    {name = "Sharp Idle Kiss", id = 82968834584550, speed = 1, timepos = 0},
+    {name = "67", id = 79384192922335, speed = 1, timepos = 0},
+    {name = "Blinding light", id = 116146357219792, speed = 1, timepos = 0},
+    {name = "Poki", id = 112156899315821, speed = 1, timepos = 0},
+    {name = "LighterFornite", id = 105865125341943, speed = 1, timepos = 0},
+    {name = "RockNrollSex", id = 128545921603470, speed = 1, timepos = 0},
+    {name = "CubeGlitch", id = 94353826502060, speed = 1, timepos = 0},
+    {name = "RobloxLogo", id = 87187551246823, speed = 1, timepos = 0},
+    {name = "The Look", id = 132921312059404, speed = 1, timepos = 0},
+    {name = "OutWest", id = 97260675790357, speed = 1, timepos = 0},
+    {name = "WormTest", id = 132619650880486, speed = 1, timepos = 0},
+    {name = "FrenchConfidence", id = 126275747804327, speed = 1, timepos = 0},
+    {name = "SharpSitUp", id = 128834802602240, speed = 1, timepos = 0},
+    {name = "RedCarpetWalk", id = 113585139173675, speed = 1, timepos = 0},
+    {name = "BimBamBoom", id = 89776651945135, speed = 1, timepos = 0},
+    {name = "MiauMiauCatDance", id = 101961809095271, speed = 1, timepos = 0},
+    {name = "MrSaxoBeat", id = 137204763700218, speed = 1, timepos = 0},
+    {name = "SquidwardDance", id = 102252931741162, speed = 1, timepos = 0},
+    {name = "BboomBboom", id = 137393006753955, speed = 1, timepos = 0},
+    {name = "Crying", id = 102505121804978, speed = 1, timepos = 0},
+    {name = "CrybabySit", id = 85138948197443, speed = 1, timepos = 0},
+    {name = "DestroyMe", id = 139118319037802, speed = 1, timepos = 0},
+    {name = "Hug1", id = 137740546484792, speed = 1, timepos = 0},
+    {name = "Hug2", id = 73963125932240, speed = 1, timepos = 0},
+    {name = "Hug3", id = 95247520541805, speed = 1, timepos = 0},
+    {name = "Can't Get enough", id = 114217558139406, speed = 1, timepos = 0},
+    {name = "HeadSpin", id = 134438579483725, speed = 1, timepos = 0},
+    {name = "TallCreatureWalk", id = 134010853417610, speed = 1, timepos = 0},
+    {name = "BuckleUp", id = 128260240558447, speed = 1, timepos = 0},
+	{name = "CrossBounce", id = 112946511068672, speed = 1, timepos = 0},
+	{name = "Classy", id = 121280429198095, speed = 1, timepos = 0},
+	{name = "CheChe", id = 71032182360903, speed = 1, timepos = 0},
+	{name = "FunnyThing", id = 121515099061519, speed = 1, timepos = 0},
+	{name = "PoseWeird", id = 121564149133524, speed = 1, timepos = 0},
+	{name = "Sharp's Strut", id = 107355845728742, speed = 1, timepos = 0},
+	{name = "MegaPoopEmote", id = 82322674391707, speed = 1, timepos = 0},
+	{name = "DiscoDanceEmote", id = 95213688160591, speed = 1, timepos = 0},
+	{name = "Panuma", id = 90098219486909, speed = 1, timepos = 0},
+	{name = "HangLooseCelebration", id = 86873483281583, speed = 1, timepos = 0},
+	{name = "DanceMonkey", id = 104218186661578, speed = 1, timepos = 0},
+	{name = "FlingGlitch", id = 98132405391681, speed = 1, timepos = 0},
+	{name = "StretchLikeThis", id = 119377401608190, speed = 1, timepos = 0},
+	{name = "GetItGirl", id = 103073544078627, speed = 1, timepos = 0},
+	{name = "RastingLiar", id = 129729141753182, speed = 1, timepos = 0},
+	{name = "HungryTwerk", id = 128150565044956, speed = 1, timepos = 0},
+	{name = "TouchGrass", id = 85976653088627, speed = 1, timepos = 0},
+	{name = "UltraNeedyHolaBouncing", id = 72195010280617, speed = 1, timepos = 0},
+	{name = "SpiderDance", id = 87652526755259, speed = 1, timepos = 0},
+	{name = "ShowWork", id = 121418461728575, speed = 1, timepos = 0},
+	{name = "BeepBomBam", id = 136061839425519, speed = 1, timepos = 0},
+	{name = "MegaPoopSniff", id = 76580366945676, speed = 1, timepos = 0},
+	{name = "BendBack", id = 115736763025439, speed = 1, timepos = 0},
+	{name = "HungryHula", id = 114333667685041, speed = 1, timepos = 0},
+	{name = "WallLean", id = 82994754414999, speed = 1, timepos = 0},
+    {name = "Odetari", id = 122940267485249, speed = 1, timepos = 0},
+    {name = "Invisbile works every game", id = 108210268078796, speed = 1, timepos = 0},
+    {name = "HitlerSalute", id = 134450935997608, speed = 1, timepos = 0},
+    {name = "BecomeAChair", id = 115867121999967, speed = 1, timepos = 0},
+    {name = "TumbalaTum", id = 132648337074933, speed = 1, timepos = 0},
+    {name = "HeadSlug", id = 87620748199098, speed = 1, timepos = 0},
+    {name = "Dj", id = 109971206467041, speed = 1, timepos = 0},
+    {name = "PennywiseDance", id = 120192986965858, speed = 1, timepos = 0},
+    {name = "Flippin", id = 81051966180535, speed = 1, timepos = 0},
+    {name = "JerkOff", id = 109504923183954, speed = 1, duration = 1.05},
+    {name = "SeGratterLeCul", id = 698251653, speed = 0.45, timepos = 0.78, duration = 0.23},
+    {name = "AncienJerkOff", id = 698251653, speed = 0.30, timepos = 0.59, duration = 0.17},
+    {name = "Cooldance", id = 101765995650125, speed = 1, timepos = 0},
+    {name = "HeadFloor", id = 130877332844004, speed = 1, timepos = 0},
+    {name = "InvisibleTest", id = 138595763987685, speed = 0, timepos = 80},
+	{name = "NeedyCircleShake", id = 74250120033167, speed = 1, timepos = 0},
+	{name = "MegaVomit", id = 71435362930923, speed = 1, timepos = 0},
+	{name = "CuteKittyLegs", id = 103803535292685, speed = 1, timepos = 0, duration = 3.70},
+	{name = "HearMeNow", id = 99492786571090, speed = 1, timepos = 0},
+	{name = "InfiniteSitUps", id = 130307434595727, speed = 1, timepos = 0},
+	{name = "Ya ya ying", id = 139938326892525, speed = 1, timepos = 0},
+	{name = "GuitarHeadbanger", id = 121159597054506, speed = 1, timepos = 0},
+    {name = "SkeletonShield", id = 81217031472771, speed = 1.3, timepos = 0},
+    {name = "Praise", id = 103305031554072, speed = 1, timepos = 0},
+    {name = "CjShuffle", id = 104469084455924, speed = 1, timepos = 0},
+    {name = "AbsoluteCinema", id = 137483785463787, speed = 1, timepos = 0},
+    {name = "Cart", id = 77122264773140, speed = 1, timepos = 0},
+    {name = "ClimbingStairs", id = 133780336745031, speed = 1, timepos = 0},
+    {name = "PeeKaaBoo", id = 93797728107246, speed = 1, timepos = 0},
+    {name = "BabyTuEresMala", id = 128030484419917, speed = 1, timepos = 0,},
+    {name = "ShowerDance", id = 110950690818444, speed = 1, timepos = 0,},
+    {name = "SouthParkAlienExperiment", id = 84845580372155, speed = 1, timepos = 0,},
+    {name = "MassiveTurd", id = 113388468967463, speed = 1, timepos = 0,},
+    {name = "NeckRoll", id = 126557734418320, speed = 1, timepos = 0,},
+    {name = "Sinking", id = 93193438936298, speed = 1, timepos = 0,},
+    {name = "SeeTheseHipsSways", id = 75911996257792, speed = 1, timepos = 0,},
+    {name = "FloorPhase", id = 130650650773766, speed = 1, timepos = 0,},
+    {name = "BiggestTallestAvatar", id = 93206392584401, speed = 1, timepos = 0,},
+    {name = "LegShaker", id = 125856989235850, speed = 1, timepos = 0,},
+    {name = "Zany", id = 117309519279783, speed = 1, timepos = 0,},
+    {name = "WolfIrliniqueDance", id = 123536918725562, speed = 1, timepos = 0,},
+    {name = "BrunoBestPrime", id = 126090401307750, speed = 1, timepos = 0,},
+    {name = "MarshWalk", id = 81050941678872, speed = 1, timepos = 0,},
+    {name = "Ska-Tra terrestial", id = 105510919646688, speed = 1, timepos = 0,},
+    {name = "FakeLag", id = 140407336134597, speed = 1, timepos = 0,},
+    {name = "Seizure", id = 120324540178358, speed = 1, timepos = 0,},
+    {name = "LiberianGirl", id = 75339926258254, speed = 1, timepos = 0,},
+    {name = "lightPost", id = 136418721245851, speed = 1, timepos = 0,},
+    {name = "ClearyJustStreching", id = 112800208994466, speed = 1, timepos = 0,},
+    {name = "ThankyouSex", id = 107324155819369, speed = 1, timepos = 0,},
+    {name = "NeedyBouncyShake", id = 117746789428885, speed = 1, timepos = 0,},
+    {name = "LowCortisolDance", id = 77387643699357, speed = 1, timepos = 0,},
+    {name = "Infectious", id = 74206160331691, speed = 1, timepos = 0,},
+    {name = "Ma-Ya-Hi", id = 124627193048193, speed = 1, timepos = 0,},
+    {name = "Fireball", id = 81711013922363, speed = 1, timepos = 0,},
+    {name = "Skibidi", id = 93589735739944, speed = 1, timepos = 0,},
+    {name = "BigGuy", id = 94648750036148, speed = 1, timepos = 0,},
+    {name = "NeedtBaddieHipBounce", id = 83334210386722, speed = 1, timepos = 0,},
+    {name = "DanceAllNight", id = 105525419218793, speed = 1, timepos = 0,},
+    {name = "Floss", id = 88868117905823, speed = 1, timepos = 0,},
+    {name = "I came To Groove", id = 86836626230626, speed = 1, timepos = 0,},
+    {name = "NeedyCircleArsh", id = 91152932439976, speed = 1, timepos = 0,},
+    {name = "IseeKaremGroove", id = 139837430175118, speed = 1.2, timepos = 3, duration = 4},
+    {name = "GodLikePushUps", id = 115852901216693, speed = 1, timepos = 0,},
+    {name = "SaoPauloIntro", id = 117364680341082, speed = 1, timepos = 0,},
+    {name = "SaoPauloDance", id = 135058366788535, speed = 1, timepos = 0,},
+    {name = "SideKick", id = 121305552792484, speed = 1, timepos = 0,},
+    {name = "LowCortisol", id = 100253510018322, speed = 1, timepos = 0,},
+    {name = "KidTantrum", id = 86339673982616, speed = 1, timepos = 0,},
+    {name = "WorkIt", id = 97382168466910, speed = 1.1, timepos = 0,},
+    {name = "AfricanDance", id = 75052016085489, speed = 1, timepos = 0,},
+    {name = "ZestyBackflip", id = 96222972340305, speed = 1, timepos = 0,},
+    {name = "GangnamStyle v3", id = 122054032133957, speed = 1, timepos = 0,},
+    {name = "SexyMoves", id = 104459303115836, speed = 1, timepos = 0,},
+    {name = "AssTwerking", id = 91783046092111, speed = 1, timepos = 0,},
+    {name = "HeadBack", id = 115475303983012, speed = 1, timepos = 0,},
+    {name = "Tiny", id = 139003180719516, speed = 1, timepos = 0,},
+    {name = "MichaelMyersShake", id = 137280237355219, speed = 1, timepos = 0,},
+    {name = "WeirdAssTwerk", id = 127229404042293, speed = 1, timepos = 0,},
+    {name = "HeadSex", id = 81521372155417, speed = 1, timepos = 5, duration = 2},
+    {name = "ShakeNeedyShake", id = 88799814575283, speed = 1, timepos = 0,},
+    {name = "Cairo", id = 133243219329856, speed = 1, timepos = 0,},
+    {name = "Fight", id = 83931406604210, speed = 1, timepos = 0,},
+    {name = "WeirdBackHead", id = 74702780523628, speed = 0, timepos = 12, duration = 0},
+    {name = "CircleHulaHoop", id = 136777003134980, speed = 1, timepos = 0,},
+    {name = "WormMovement", id = 108268386821281, speed = 1, timepos = 0,},
+    {name = "BrazilianGroove", id = 92998595700488, speed = 1, timepos = 0,},
+    {name = "JumpMeme", id = 104442845235753, speed = 1, timepos = 0,},
+    {name = "HoppinDih", id = 118274913373979, speed = 1, timepos = 0,},
+    {name = "GoodByeChat", id = 117159340853345, speed = 1, timepos = 0,},
+    {name = "WormSnakeFloat", id = 103387393187913, speed = 1, timepos = 0,},
+    {name = "MarieDance", id = 77523009931427, speed = 1, timepos = 0,},
+    {name = "InvisibleStuds", id = 127617064535224, speed = 1, timepos = 0,},
+    {name = "HypeDance", id = 132750735774914, speed = 1, timepos = 0,},
+    {name = "FunkSteps", id = 140219184038687, speed = 1, timepos = 0,},
+    {name = "Waves", id = 101438849241950, speed = 1, timepos = 0,},
+    {name = "CoolClap", id = 127109709336787, speed = 1, timepos = 0,},
+    {name = "JigglyBouncy", id = 129181356001514, speed = 1, timepos = 0,},
+    {name = "ScubaScuba", id = 117128008767668, speed = 1, timepos = 0,},
+    {name = "RockerDance", id = 111612521354152, speed = 1, timepos = 0,},
+    {name = "SpicyTwerk", id = 125763702777221, speed = 1, timepos = 0,},
+    {name = "SpicyTwerk2", id = 131467010199682, speed = 1, timepos = 0,},
+    {name = "SpicyTwerk3", id = 78434174234234, speed = 1, timepos = 0,},
+    {name = "GetItGirl", id = 83989072055447, speed = 1, timepos = 0,},
+    {name = "TungTungSahurDance", id = 78913330074420, speed = 1, timepos = 0,},
+    {name = "KingNasirGroove", id = 105752204149847, speed = 1, timepos = 0,},
+    {name = "KingNasirBestDance", id = 130416526857346, speed = 1, timepos = 0,},
+    {name = "BouncyHulaHoop", id = 134070972202185, speed = 1, timepos = 0,},
+    {name = "Bidibadi", id = 100975308810029, speed = 1, timepos = 0,},
+    {name = "WheelCircle", id = 128237623946970, speed = 1, timepos = 0,},
+    {name = "PushUpsNoHands", id = 98803737401435, speed = 1, timepos = 0,},
+    {name = "FaceSpasm", id = 79222214377376, speed = 1, timepos = 0,},
+    {name = "BoxingCoach", id = 75711826705639, speed = 1, timepos = 0,},
+    {name = "ScubaShuffle", id = 96550435166657, speed = 1, timepos = 0,},
+    {name = "ShadowBoxing", id = 130864769476299, speed = 1, timepos = 0,},
+    {name = "BoxingDead", id = 97285131478947, speed = 1, timepos = 0,},
+    {name = "ShakeYourBodyNigga", id = 118870795136468, speed = 1, timepos = 0,},
+    {name = "BouncyAnimeShake", id = 133441862028387, speed = 1, timepos = 0,},
+    {name = "GoofyUnycycle", id = 105744682567084, speed = 1, timepos = 0,},
+    {name = "StickyGoofyDance", id = 106683576087298, speed = 1, timepos = 0,},
+    {name = "MiiBopStreet", id = 116787308143271, speed = 1, timepos = 0,},
+    {name = "ObamaWhiteGuy", id = 98601434233932, speed = 1, timepos = 0,},
+    {name = "WiggleThatDihDown", id = 90668143967259, speed = 0, timepos = 5,},
+    {name = "WiggleThatDihUp", id = 90668143967259, speed = 0, timepos = 3,},
+    {name = "TweakingOut", id = 75633919289082, speed = 1, timepos = 0,},
+    {name = "RichardDance", id = 129116138683204, speed = 1, timepos = 0,},
+    {name = "HappyDance", id = 108563840926099, speed = 1, timepos = 0,},
+    {name = "CradleDance", id = 76277735457992, speed = 1, timepos = 0,},
+    {name = "ThePercolatorDance", id = 75128425128674, speed = 1, timepos = 0,},
+    {name = "HarleyDance", id = 111138470711385, speed = 1, timepos = 0,},
+    {name = "67 v2", id = 134038928607340, speed = 1, timepos = 0,},
+    {name = "JamalDance", id = 117175008521374, speed = 1, timepos = 0,},
+    {name = "Gangnam Style Shuffle - PSY (KPOP)", id = 72769478118287, speed = 1, timepos = 0,},
+    {name = "BABYMONSTER-PSYCHO", id = 70825448889630, speed = 1, timepos = 0,},
+    {name = "I-LUV-IT-PSY", id = 105361217308547, speed = 1, timepos = 0,},
+    {name = "HeadSky", id = 133597998530642, speed = 0, timepos = 0,},
+    {name = "AdvancedMath", id = 133711961668305, speed = 1, timepos = 0,},
+    {name = "ThrowingitFromTheBack", id = 80459847568029, speed = 1, timepos = 0,},
+    {name = "DoubleUpDance", id = 134293695963609, speed = 1, timepos = 0,},
+    {name = "KitKitKat", id = 76790759135125, speed = 1, timepos = 0,},
+    {name = "Projector", id = 111102478376274, speed = 1, timepos = 0,},
+    {name = "EpicFlight", id = 123646455593843, speed = 1, timepos = 0,},
+    {name = "BeggarPose", id = 129176024770982, speed = 1, timepos = 0,},
+    {name = "CubeUpgrade", id = 94569085531218, speed = 1, timepos = 0,},
+    {name = "PainAndSuffering", id = 122319751392556, speed = 1, timepos = 0,},
+    {name = "Wall", id = 81329104650157, speed = 1, timepos = 0,},
+    {name = "WallSpin", id = 76297120278956, speed = 1, timepos = 0,},
+    {name = "GetSchiwifty", id = 106883820516170, speed = 1, timepos = 0,},
+    {name = "TakeTheLV2", id = 100598839310833, speed = 1, timepos = 0,},
+    {name = "SillyClownDance", id = 82508681587721, speed = 1, timepos = 0,},
+    {name = "TikiTikiTiktokDance", id = 94593831004144, speed = 1, timepos = 0,},
+    {name = "Droop", id = 77030340104369, speed = 1, timepos = 0,},
+    {name = "BouncyCircleShake", id = 111298270892797, speed = 1, timepos = 0,},
+    {name = "PumpItUp", id = 103084380984736, speed = 1, timepos = 0,},
+    {name = "MadnessCombatV2", id = 127416927945405, speed = 1, timepos = 0,},
+    {name = "Bombastic", id = 108707584075308, speed = 1, timepos = 0,},
+    {name = "LetsGoNakamura", id = 110822234068875, speed = 1, timepos = 0,},
+    {name = "WassupEveryBody", id = 80482539411743, speed = 1, timepos = 0,},
+    {name = "FlawlessFeels", id = 76048323352197, speed = 1, timepos = 0,},
+    {name = "Baila", id = 74773982872843, speed = 1.1, timepos = 0,},
+    {name = "ThrowItInACircle", id = 136734803178527, speed = 1, timepos = 0,},
+    {name = "Push Ups", id = 105734064879541, speed = 1, timepos = 0,},
+    {name = "HeeseungWalkFlow", id = 137484295005081, speed = 1, timepos = 0,},
+    {name = "MelbourneShuffle", id = 97644870879648, speed = 1, timepos = 0,},
+    {name = "BigBadWolf", id = 82093648435151, speed = 1, timepos = 0,},
+    {name = "NeedyShakeDance", id = 80218430806743, speed = 1, timepos = 0,},
+    {name = "ThrillerCreep", id = 74498799892136, speed = 1, timepos = 0,},
+    {name = "ShakeThatAssNigga", id = 74498799892136, speed = 1, timepos = 1, duration= 2},
+    {name = "BaldiOhHiThere", id = 115766155456437, speed = 1, timepos = 0,},
+    {name = "ZestySturdy", id = 115992344778101, speed = 1, timepos = 0,},
+    {name = "SpiderCrawl", id = 92385175886008, speed = 1, timepos = 0,},
+    {name = "T-Pose", id = 119143208960203, speed = 1, timepos = 0,},
+    {name = "HipHoll", id = 132609888502427, speed = 1, timepos = 0,},
+    {name = "WormDick", id = 86242624512288, speed = 1, timepos = 0,},
+    {name = "PoleDanceStart", id = 115594173046636, speed = 1, timepos = 0, duration= 2.1},
+    {name = "PoleDance", id = 115594173046636, speed = 1, timepos = 2, duration= 5.4},
+    {name = "PoleDanceOtherVersion", id = 138493437063972, speed = 1, timepos = 0,},
+    {name = "WorldCupEverybodyJump", id = 124922199557091, speed = 1, timepos = 0,},
+    {name = "Xanadu", id = 135898950618247, speed = 1, timepos = 0,},
+    {name = "WallSex", id = 91694583784966, speed = 1, timepos = 0,},
+    {name = "Pee", id = 73106133793955, speed = 0, timepos = 0, disableAnimate = true},
+    {name = "SassyDance", id = 120871938949409, speed = 1, timepos = 0,},
+    {name = "ArnoldFlex", id = 114266976567428, speed = 1, timepos = 0,},
+    {name = "PoopTime", id = 98163601145965, speed = 1, timepos = 0,},
+    {name = "WindyCircle", id = 116398038391741, speed = 1, timepos = 0,},
+    {name = "NeedyBouncyShake", id = 81798041589041, speed = 1, timepos = 0,},
+    {name = "UpsideDownDance", id = 77937430947773, speed = 1, timepos = 0,},
+    {name = "PussyTwerk", id = 117040674288142, speed = 1, timepos = 0,},
+    {name = "MichaelJacksonThriller", id = 82202979546509, speed = 1, timepos = 0,},
+    {name = "15thJuly", id = 92510946014488, speed = 1, timepos = 0,},
+    {name = "PsychoTeddy", id = 82253590215395, speed = 1, timepos = 0,},
+    {name = "KATSEYEPinkyUp", id = 102769293615580, speed = 1, timepos = 0,},
+    {name = "SteveMinecraft", id = 137129554243440, speed = 1, timepos = 0,},
+    {name = "YourBias-ILLIT", id = 116293813797645, speed = 1, timepos = 0,},
+    {name = "DouyinGuy", id = 75092182484686, speed = 1, timepos = 0,},
+    {name = "Guap", id = 133273871148994, speed = 1, timepos = 0,},
+    {name = "KaremGroove", id = 75102269016170, speed = 1, timepos = 0,},
+    {name = "Ineverseen", id = 125257007299911, speed = 1, timepos = 0,},
+    {name = "CircleShake", id = 91641259679732, speed = 1, timepos = 0,},
+    {name = "BoobsMove", id = 95788330497322, speed = 1, timepos = 0,},
+    {name = "IGotThatFelling", id = 78633875893738, speed = 1, timepos = 0,},
+    {name = "Poop", id = 106178073022799, speed = 1, timepos = 0,},
+    {name = "NiggaShakeThatBooty", id = 116726213301919, speed = 1, timepos = 0,},
+    {name = "TripOut", id = 106226428480041, speed = 1, timepos = 0,},
+    {name = "MrBeastDance", id = 137432611170239, speed = 1, timepos = 0,},
+    {name = "ItchyButt", id = 123295758754234, speed = 1, timepos = 0,},
+    {name = "RabbitMoves", id = 129860359020615, speed = 1, timepos = 0,},
+    {name = "GottaGoPee", id = 114962382354695, speed = 1, timepos = 0,},
+    {name = "WeirdAssPoses", id = 96207301237136, speed = 1, timepos = 0,},
+    {name = "ShowYourAss", id = 110197657142924, speed = 1, timepos = 0,},
+    {name = "ShakeThatBody", id = 86079568532780, speed = 1, timepos = 0, duration= 5},
+    {name = "NiceMoves", id = 101308375729035, speed = 1, timepos = 0,},
+    {name = "NiceShake", id = 71464651677834, speed = 1, timepos = 0,},
+    {name = "TrendTiktok", id = 110924906758330, speed = 1, timepos = 0,},
+    {name = "YouStink", id = 74319193054711, speed = 1, timepos = 0,},
+    {name = "Proposing", id = 70639053125611, speed = 1, timepos = 0,},
+    {name = "ThereSheGoes", id = 88650172609118, speed = 1, timepos = 0,},
+    {name = "TorsoGlitch", id = 72143069974256, speed = 1, timepos = 0,},
+    {name = "LeaveTheDoorOpen", id = 102447348421033, speed = 1, timepos = 0,},
+    {name = "NeedyDaniela", id = 93690451976668, speed = 1, timepos = 0,},
+    {name = "BaddieSquat", id = 104534505692398, speed = 1, timepos = 0,},
+    {name = "SassySquat", id = 83057165534063, speed = 1, timepos = 0,},
+}
+local activeTracks = {}
+
+local function createAnimationButton(animData)
+    local button = Instance.new("TextButton")
+    button["Name"] = animData.name
+    button["Size"] = UDim2.new(1, 0, 1, 0)
+    button["BackgroundColor3"] = Color3.fromRGB(60, 60, 60)
+    button["Text"] = animData.name
+    button["TextColor3"] = Color3.new(1, 1, 1)
+    button["TextSize"] = 16
+    button["TextWrapped"] = true
+    button["Font"] = Enum.Font.RobotoMono
+    button["BorderSizePixel"] = 0
+    button["Parent"] = buttoncontainer
+    
+    table.insert(originalButtons, button)
+    
+    button["MouseButton1Click"]:Connect(function()
+        clik()
+        if localplayer.Character then
+            local humanoid = localplayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+    for id, track in pairs(activeTracks) do
+        if track then
+            track:Stop()
+        end
+    end
+    activeTracks = {}
+                
+                local animation = Instance.new("Animation")
+                animation.AnimationId = "rbxassetid://" .. animData.id
+                
+                local track = humanoid:LoadAnimation(animation)
+                track:Play()
+                track.Looped = true
+                track.TimePosition = animData.timepos
+                track:AdjustSpeed(animData.speed)
+                track:AdjustWeight(999)
+                
+                activeTracks[animData.id] = track
+                activeTracks[animData.id] = track
+
+-- 🔁 loop infini des X premières secondes
+if animData.duration then
+    local startPos = animData.timepos or 0
+    local thisTrack = track
+
+    task.spawn(function()
+        while activeTracks[animData.id] == thisTrack do
+            task.wait(animData.duration)
+            if thisTrack.IsPlaying then
+                thisTrack.TimePosition = startPos
+            else
+                break
+            end
+        end
+    end)
+else
+    -- loop normal pour les autres
+    track.Looped = true
+end
+            end
+        end
+    end)
+end
+
+for _, anim in ipairs(animations) do
+    createAnimationButton(anim)
+end
+
+local function filterAnimations(searchText)
+    searchText = string.lower(searchText)
+    
+    for _, button in pairs(originalButtons) do
+        button.Visible = false
+    end
+    
+    for _, button in pairs(originalButtons) do
+        if string.find(string.lower(button.Text), searchText, 1, true) then
+            button.Visible = true
+        end
+    end
+    
+    buttonlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Wait()
+    scrollframe["CanvasSize"] = UDim2.new(0, 0, 0, buttonlayout["AbsoluteContentSize"]["Y"])
+end
+
+searchbox:GetPropertyChangedSignal("Text"):Connect(function()
+    filterAnimations(searchbox.Text)
+end)
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+stopallbutton["MouseButton1Click"]:Connect(function()
+    clik()
+    for id, track in pairs(activeTracks) do
+        if track then
+            track:Stop()
+        end
+    end
+    activeTracks = {}
+end)
+
+xbutton["MouseButton1Click"]:Connect(function()
+    clik()
+    gui:Destroy()
+end)
+
+local isminimized = false
+local originalsize = frame["Size"]
+
+minimizebutton["MouseButton1Click"]:Connect(function()
+    clik()
+    isminimized = not isminimized
+    if isminimized then
+        minimizebutton["Text"] = "+"
+        frame["Size"] = UDim2.new(originalsize["X"]["Scale"], originalsize["X"]["Offset"], 0, 30)
+        scrollframe["Visible"] = false
+    else
+        minimizebutton["Text"] = "–"
+        frame["Size"] = originalsize
+        scrollframe["Visible"] = true
+    end
+end)
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+buttonlayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    buttoncontainer["Size"] = UDim2.new(1, -10, 0, buttonlayout["AbsoluteContentSize"]["Y"])
+    scrollframe["CanvasSize"] = UDim2.new(0, 0, 0, buttonlayout["AbsoluteContentSize"]["Y"])
+end)
