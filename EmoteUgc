@@ -740,6 +740,7 @@ local animations = {
     {name = "BaddieSquat", id = 104534505692398, speed = 1, timepos = 0,},
     {name = "SassySquat", id = 83057165534063, speed = 1, timepos = 0,},
 }
+
 local activeTracks = {}
 
 local function createAnimationButton(animData)
@@ -773,6 +774,9 @@ local function createAnimationButton(animData)
                 animation.AnimationId = "rbxassetid://" .. animData.id
                 
                 local track = humanoid:LoadAnimation(animation)
+        track.Priority = Enum.AnimationPriority.Action4
+        local a=localplayer.Character:FindFirstChild("Animate")
+        if a then a.Disabled=true end
                 track:Play()
                 track.Looped = true
                 track.TimePosition = animData.timepos
@@ -841,6 +845,9 @@ stopallbutton["MouseButton1Click"]:Connect(function()
         end
     end
     activeTracks = {}
+    local animate = localplayer.Character and localplayer.Character:FindFirstChild("Animate")
+    if animate then animate.Disabled = false end
+    if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Running) end
 end)
 
 xbutton["MouseButton1Click"]:Connect(function()
