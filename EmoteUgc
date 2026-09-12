@@ -738,6 +738,7 @@ local animations = {
     {name = "NeedyDaniela", id = 93690451976668, speed = 1, timepos = 0,},
     {name = "BaddieSquat", id = 104534505692398, speed = 1, timepos = 0,},
     {name = "SassySquat", id = 83057165534063, speed = 1, timepos = 0,},
+    {name = "ElChombo", id = 72801079906291, speed = 1, timepos = 0,},
 }
 
 local activeTracks = {}
