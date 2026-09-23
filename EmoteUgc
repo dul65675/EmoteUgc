@@ -266,7 +266,7 @@ local animations = {
     {name = "eagle", id = 94733755146045, speed = 1.5, timepos = 0},
     {name = "goofy roll", id = 133612047483255, speed = 1, timepos = 0},
     {name = "BoogieDown", id = 99662142344622, speed = 1, timepos = 0},
-    {name = "Distraction dance", id = 118817596777382, speed = 1.4, timepos = 0},
+    {name = "Distraction dance", id = 138521480650033, speed = 1, timepos = 0},
     {name = "FoldIntoTorso", id = 125125316404919, speed = 1, timepos = 0},
     {name = "TorsoFace", id = 135277125926306, speed = 1, timepos = 0},
     {name = "NaziLogo", id = 115474307862803, speed = 1, timepos = 0},
