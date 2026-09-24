@@ -736,7 +736,7 @@ local animations = {
     {name = "TorsoGlitch", id = 72143069974256, speed = 1, timepos = 0,},
     {name = "LeaveTheDoorOpen", id = 102447348421033, speed = 1, timepos = 0,},
     {name = "NeedyDaniela", id = 93690451976668, speed = 1, timepos = 0,},
-    {name = "LaughItUp", id = 97852202017416, speed = 1, timepos = 0,},
+    {name = "PTDR", id = 97852202017416, speed = 1, timepos = 0,},
     {name = "ElaPeida", id = 84386129772645, speed = 1, timepos = 0,},
     {name = "ElChombo", id = 72801079906291, speed = 1, timepos = 0,},
     {name = "BassMarsh", id = 87686928365260, speed = 1, timepos = 0,},
