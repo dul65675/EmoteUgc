@@ -609,7 +609,6 @@ local animations = {
     {name = "GoodByeChat", id = 117159340853345, speed = 1, timepos = 0,},
     {name = "WormSnakeFloat", id = 103387393187913, speed = 1, timepos = 0,},
     {name = "MarieDance", id = 77523009931427, speed = 1, timepos = 0,},
-    {name = "InvisibleStuds", id = 127617064535224, speed = 1, timepos = 0,},
     {name = "HypeDance", id = 132750735774914, speed = 1, timepos = 0,},
     {name = "FunkSteps", id = 140219184038687, speed = 1, timepos = 0,},
     {name = "Waves", id = 101438849241950, speed = 1, timepos = 0,},
@@ -748,6 +747,7 @@ local animations = {
     {name = "OnTheMove", id = 127907497225240, speed = 1, timepos = 0,},
     {name = "SexMoves", id = 125600739904798, speed = 1, timepos = 0,},
     {name = "ToTheSky", id = 137164418562663, speed = 1, timepos = 0,},
+    {name = "InvisibleGLitch", id = 137164418562663, speed = 0, timepos = 22, duration= 0},
 }
 
 local activeTracks = {}
