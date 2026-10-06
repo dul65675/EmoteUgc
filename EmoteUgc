@@ -750,6 +750,7 @@ local animations = {
     {name = "Grooving", id = 129069398913210, speed = 1, timepos = 0,},
     {name = "RockOutDance", id = 86703983607442, speed = 1, timepos = 0,},
     {name = "MyWorld", id = 126990154475179, speed = 1, timepos = 0,},
+    {name = "FrightFunk", id = 71795370965850, speed = 1, timepos = 0,},
 }
 
 local activeTracks = {}
