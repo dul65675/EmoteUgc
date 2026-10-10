@@ -731,7 +731,7 @@ local animations = {
     {name = "TrendTiktok", id = 110924906758330, speed = 1, timepos = 0,},
     {name = "YouStink", id = 74319193054711, speed = 1, timepos = 0,},
     {name = "Proposing", id = 70639053125611, speed = 1, timepos = 0,},
-    {name = "ThereSheGoes", id = 88650172609118, speed = 1, timepos = 0,},
+    {name = "ThereSheGoes", id = 70825317521030, speed = 1, timepos = 0,},
     {name = "TorsoGlitch", id = 72143069974256, speed = 1, timepos = 0,},
     {name = "LeaveTheDoorOpen", id = 102447348421033, speed = 1, timepos = 0,},
     {name = "NeedyDaniela", id = 93690451976668, speed = 1, timepos = 0,},
