@@ -753,6 +753,7 @@ local animations = {
     {name = "FrightFunk", id = 71795370965850, speed = 1, timepos = 0,},
     {name = "Copines", id = 81524741380085, speed = 1, timepos = 0,},
     {name = "LeanOnShoulders", id = 89267921271194, speed = 1, timepos = 0,},
+    {name = "2On", id = 134444595770201, speed = 1, timepos = 0,},
 }
 
 local activeTracks = {}
