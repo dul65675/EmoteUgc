@@ -162,7 +162,7 @@ buttonlayout["Parent"] = buttoncontainer
 local originalButtons = {}
 
 local animations = {
-    {name = "California\nGirls", id = 124982597491660, speed = 1.2, timepos = 0},
+    {name = "California\nGirls", id = 111281033685433, speed = 1, timepos = 0},
     {name = "Helicopter", id = 95301257497525, speed = 1, timepos = 0},
     {name = "Helicopter 2", id = 122951149300674, speed = 1, timepos = 0},
     {name = "Helicopter 3", id = 91257498644328, speed = 1, timepos = 0},
@@ -171,9 +171,9 @@ local animations = {
     {name = "Flopping Fish", id = 79075971527754, speed = 1, timepos = 0},
     {name = "Gangnam Style", id = 78801539668900, speed = 1, timepos = 0.8, duration= 10000},
     {name = "Caramelldansen v1", id = 104096914538369, speed = 1, timepos = 0},
-    {name = "Caramelldansen v2", id = 80316917876772, speed = 1, timepos = 0},
+    {name = "Caramelldansen v2", id = 85104517879369, speed = 1, timepos = 0},
     {name = "Caramelldansen v3", id = 97784883961209, speed = 1, timepos = 0},
-    {name = "subject v3", id = 117374801851126, speed = 1.1, timepos = 0},
+    {name = "subject v3", id = 90524639007908, speed = 1.1, timepos = 0},
     {name = "Heart Left", id = 110936682778213, speed = 0, timepos = 0},
     {name = "Heart Right", id = 84671941093489, speed = 0, timepos = 0},
     {name = "67", id = 115439144505157, speed = 1, timepos = 0},
@@ -211,7 +211,6 @@ local animations = {
     {name = "dame tu cosita", id = 90683763183723, speed = 1, timepos = 0},
     {name = "peanut butter", id = 108848553639889, speed = 1, timepos = 0},
     {name = "onion", id = 134735047372485, speed = 1, timepos = 0},
-    {name = "HardStyle", id = 93792556735639, speed = 1, timepos = 0},
     {name = "bhangra boogie", id = 78416657618448, speed = 1, timepos = 0},
     {name = "sex dance 1", id = 92618727772186, speed = 1, timepos = 0},
     {name = "griddy", id = 71864055176836, speed = 1.1, timepos = 0},
@@ -238,7 +237,6 @@ local animations = {
     {name = "dance n'prance", id = 92246757633675, speed = 1, timepos = 0},
     {name = "shimmery", id = 87031427869572, speed = 1, timepos = 0},
     {name = "r15 death accurate", id = 88130117312312, speed = 1, timepos = 0},
-    {name = "jumpstyle", id = 86272822145078, speed = 1, timepos = 0},
     {name = "/e dance1", id = 89676212115777, speed = 1, timepos = 0},
     {name = "/e dance2", id = 116571017721759, speed = 1, timepos = 0},
     {name = "/e dance3", id = 78240649545370, speed = 1, timepos = 0},
@@ -755,6 +753,19 @@ local animations = {
     {name = "LeanOnShoulders", id = 89267921271194, speed = 1, timepos = 0,},
     {name = "2On", id = 134444595770201, speed = 1, timepos = 0,},
     {name = "TocToc", id = 104155883977642, speed = 1, timepos = 0,},
+    {name = "BatimoreBop", id = 80960264304284, speed = 1, timepos = 0,},
+    {name = "BboomBboom", id = 137393006753955, speed = 1, timepos = 0},
+    {name = "BboomBboom2", id = 137503692341360, speed = 1, timepos = 0,},
+    {name = "BunnyParty", id = 86642176445394, speed = 1, timepos = 0,},
+    {name = "CaliforniaLove", id = 80114596084281, speed = 1, timepos = 0,},
+    {name = "CryForMe", id = 80114596084281, speed = 1, timepos = 0,},
+    {name = "DancingWithEyes", id = 117991470645633, speed = 1, timepos = 0,},
+    {name = "Jumpstyle1", id = 93792556735639, speed = 1, timepos = 0},
+    {name = "jumpstyle2", id = 86272822145078, speed = 1, timepos = 0},
+    {name = "jumpstyle3", id = 112773902133223, speed = 1, timepos = 0},
+    {name = "LateNightShuffle", id = 127744968066540, speed = 1, timepos = 0},
+    {name = "NyaArigato", id = 125918825349164, speed = 1, timepos = 0},
+    {name = "TheBassTrend", id = 126823207517076, speed = 1, timepos = 0},
 }
 
 local activeTracks = {}
