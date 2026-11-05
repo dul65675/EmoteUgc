@@ -758,7 +758,7 @@ local animations = {
     {name = "BboomBboom2", id = 137503692341360, speed = 1, timepos = 0,},
     {name = "BunnyParty", id = 86642176445394, speed = 1, timepos = 0,},
     {name = "CaliforniaLove", id = 80114596084281, speed = 1, timepos = 0,},
-    {name = "CryForMe", id = 80114596084281, speed = 1, timepos = 0,},
+    {name = "CryForMe", id = 112097904991471, speed = 1, timepos = 0,},
     {name = "DancingWithEyes", id = 117991470645633, speed = 1, timepos = 0,},
     {name = "Jumpstyle1", id = 93792556735639, speed = 1, timepos = 0},
     {name = "jumpstyle2", id = 86272822145078, speed = 1, timepos = 0},
@@ -766,6 +766,12 @@ local animations = {
     {name = "LateNightShuffle", id = 127744968066540, speed = 1, timepos = 0},
     {name = "NyaArigato", id = 125918825349164, speed = 1, timepos = 0},
     {name = "TheBassTrend", id = 126823207517076, speed = 1, timepos = 0},
+    {name = "Balenci", id = 87923249128716, speed = 1, timepos = 0},
+    {name = "Demon", id = 106739773459206, speed = 1, timepos = 0},
+    {name = "Cradles", id = 98316284411442, speed = 1, timepos = 0},
+    {name = "Tabaka", id = 85249584571323, speed = 1, timepos = 0},
+    {name = "CandyLand", id = 88165739277753, speed = 1, timepos = 0},
+    {name = "6LittleEggs", id = 87145544419394, speed = 1, timepos = 0},
 }
 
 local activeTracks = {}
